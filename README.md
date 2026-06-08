@@ -1,2 +1,2 @@
 # AppReadWin
-Este projeto disponibiliza solução para levantamento dos recursos de tecnologia de informática disponíveis em um setor.
+Este projeto disponibiliza solução para informações sobre computadores (desktop e notebook) e principais periféricos (monitor, mouse e teclado) que utilizam Sistema Operacional Microsoft&trade; Windows&trade;.
