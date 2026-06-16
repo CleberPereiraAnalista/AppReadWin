@@ -22,7 +22,7 @@ class my_App:
 		self.root = tk.Tk()
 		self.root.title("AppReadWin - Leitor de informações sobre computador com Sistema Operacional Microsoft\u2122 Windows\u2122")
 		#self.root.title("Leitor de informações sobre computador com Sistema Operacional Microsoft\u00AE Windows\u00AE")
-		self.root.geometry('%dx%d+%d+%d'%(910,600,0,0))
+		self.root.geometry('%dx%d+%d+%d'%(908,600,0,0))
 		self.root.resizable(width=False, height=False)
 
 		encrypt_key = b'4KMn4L_Pd7ycmJ7WVmxKoIQ2WjPAEYNqKw-Kw8LzCW4='
@@ -48,7 +48,7 @@ class my_App:
 		label_msg_size = 7
 
 		self.mainframe = ttk.Frame(master=self.root, style="LIGHTGREY.TFrame")
-		self.mainframe.grid(row=1, column=0, sticky='ns', pady=0)
+		self.mainframe.grid(row=1, column=0, sticky='ns', padx=0, pady=0)
 
 		# Container 1 -----------------------------------------------------------------------------------
 		self.frm_1 = tk.LabelFrame(
@@ -70,16 +70,20 @@ class my_App:
 			borderwidth=2,
 			date_pattern='yyyy-mm-dd'
 		)
-		self.input_date.grid(row=0, column=0, columnspan=2, sticky='w', padx=5, pady=(5,0))
+		self.input_date.grid(row=0, column=0, sticky='w', padx=5, pady=(5,0))
+
+		msg_info_name = "Obrigatório preencher o nome completo."
+		self.label_key_msg_name = tk.Label(self.frm_1, text=msg_info_name, bg='light grey', fg='red', font=tk.font.Font(size=label_msg_size, weight='bold'))
+		self.label_key_msg_name.grid(row=0, column=1, sticky='e', padx=5, pady=(5,0))
 
 		## Nome do Usuário (Responsável pelo Computador)
-		self.label_username = tk.Label(self.frm_1, text="Nome do Servidor:", bg='light grey', font=tk.font.Font(size=label_font_size, weight='bold'))
+		self.label_username = tk.Label(self.frm_1, text="Nome do Colaborador:", bg='light grey', font=tk.font.Font(size=label_font_size, weight='bold'))
 		self.label_username.grid(row=2, column=0, sticky='e', padx=5, pady=(0,5))
 		self.input_username = tk.Entry(self.frm_1, width=50, background='white')
 		self.input_username.grid(row=2, column=1, stick='we', padx=5, pady=(0,5), ipady=1)
 
 		## Coordenação
-		self.label_coord = tk.Label(self.frm_1, text="Coordenação:", bg='light grey', font=tk.font.Font(size=label_font_size, weight='bold'))
+		self.label_coord = tk.Label(self.frm_1, text="Coordenação/Departamento:", bg='light grey', font=tk.font.Font(size=label_font_size, weight='bold'))
 		self.label_coord.grid(row=3, column=0, sticky='e', padx=5, pady=(0,5))
 		self.input_coord = tk.Entry(self.frm_1, width=50, background='white')
 		self.input_coord.grid(row=3, column=1, stick='we', padx=5, pady=(0,5), ipady=1)
@@ -113,7 +117,7 @@ class my_App:
 		rb_device_type_2.grid(row=0, column=2, sticky='w', padx=(0,5), pady=2)
 
 		## Nº do Patrimônio (targeta ou placa)
-		self.label_assets_code = tk.Label(self.frm_2, text="Nº do Patrimônio:", bg='light grey', font=tk.font.Font(size=label_font_size, weight='bold'))
+		self.label_assets_code = tk.Label(self.frm_2, text="Nº do Registro (Patrimônio):", bg='light grey', font=tk.font.Font(size=label_font_size, weight='bold'))
 		self.label_assets_code.grid(row=1, column=0, stick='e', padx=5, pady=(5,0))
 		self.input_assets_code = tk.Entry(self.frm_2, width=35, background='white', justify="center")
 		self.input_assets_code.grid(row=1, column=1, columnspan=2, stick='we', padx=5, pady=(5,0), ipady=1)
@@ -123,6 +127,12 @@ class my_App:
 		self.label_local_code.grid(row=2, column=0, stick='e', padx=5, pady=(0,5))
 		self.input_local_code = tk.Entry(self.frm_2, width=35, background='white', justify="center")
 		self.input_local_code.grid(row=2, column=1, columnspan=2, stick='we', padx=5, pady=(0,5), ipady=1)
+
+		msg_info_device = "Obrigatório preencher um dos campos acima."
+		self.label_key_msg_device = tk.Label(self.frm_2, text=msg_info_device, bg='light grey', fg='red', font=tk.font.Font(size=label_msg_size, weight='bold'))
+		self.label_key_msg_device.grid(row=3, column=1, columnspan=2, sticky='e', padx=5, pady=(0,0))
+
+		
 
 		
 		# Container 3 -----------------------------------------------------------------------------------
@@ -374,9 +384,9 @@ class my_App:
 		sep.grid(row=final_row_init+1, column=0, columnspan=10, stick='we', padx=5, pady=(15,5))
 
 		created_by = tk.Label(self.mainframe, text="Criado por Cleber Almeida Pereira", font=tk.font.Font(size=7), bg='light grey')
-		created_by.grid(row=final_row_init+2, column=0, columnspan=10, padx=5, pady=1, stick='we')
+		created_by.grid(row=final_row_init+2, column=0, columnspan=10, padx=5, pady=(1,0), stick='we')
 		contact = tk.Label(self.mainframe, text="contato: (67) 99607-6081", font=tk.font.Font(size=7), bg='light grey')
-		contact.grid(row=final_row_init+3, column=0, columnspan=10, padx=5, pady=1, stick='we')
+		contact.grid(row=final_row_init+3, column=0, columnspan=10, padx=5, pady=(0,5), stick='we')
 		# Container Footer ---------------------------------------------------------------------- FIM ---
 
 
