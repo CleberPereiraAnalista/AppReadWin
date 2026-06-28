@@ -377,6 +377,15 @@ class my_App:
 		)
 		self.btn_export_file.grid(row=final_row_init, columnspan=10, sticky='we', padx=5, pady=10)
 
+		self.label_msg = tk.Label(
+			self.mainframe,
+			text='Atualizando... aguarde pelo término!',
+			font=tk.font.Font(size=9, slant="italic"),
+			fg="red",
+			justify=tk.CENTER,
+			anchor="center",
+		)
+
 		
 
 		# Container Footer ------------------------------------------------------------------------------
@@ -484,6 +493,14 @@ class my_App:
 
 
 	def export_file(self):
+
+		self.label_msg.grid(row=22, column=0, columnspan=4, padx=6, pady=0)
+		self.mainframe.update()
+		self.run_export_file()
+
+
+	def run_export_file(self):
+
 		run_export_file = True
 
 		# Obtem dados informados
@@ -651,7 +668,7 @@ class my_App:
 
 			# Dados Obtidos =============================================================================================================================
 			if not selected_local:
-				pass
+				self.label_msg.grid_forget()
 			else:
 
 				file_name = ""
@@ -679,9 +696,16 @@ class my_App:
 
 				if check_files:
 
+					get_all_records = True
+
 					computer_info = ComputerInfo()
 					file_dict['computer']['hardwares_info'] = computer_info.hardware_dict()
+					if len(file_dict['computer']['hardwares_info'].keys()) == 0:
+						get_all_records = False
+
 					file_dict['computer']['operating_system_info'] = computer_info.operating_system_dict()
+					if len(file_dict['computer']['operating_system_info'].keys()) == 0:
+						get_all_records = False
 					
 					import platform
 					operating_system = platform.system()
@@ -692,21 +716,35 @@ class my_App:
 					elif operating_system == 'Linux':
 						pass
 
+					if get_all_records:
 
-					## 1. Converter o dicionário para string JSON
-					dict_json = json.dumps(file_dict.copy())
+						## 1. Converter o dicionário para string JSON
+						dict_json = json.dumps(file_dict.copy())
 
-					## 2. Criptografar a string dict_json 
-					encrypted_data = self.encrypt_tool.encrypt(dict_json)
+						## 2. Criptografar a string dict_json 
+						encrypted_data = self.encrypt_tool.encrypt(dict_json)
 
-					## 3. Salvar os dados criptografados em um arquivo txt
-					with open(os.path.join(selected_local, file_name), 'w', encoding='utf-8') as file:
-						file.write(encrypted_data)
-					
-					# Teste
-					#with open(os.path.join(os.getcwd(), file_name), 'w', encoding='utf-8') as file:
-					#	json.dump(file_dict, file, ensure_ascii=False, indent=4)
-
+						## 3. Salvar os dados criptografados em um arquivo txt
+						try:
+							with open(os.path.join(selected_local, file_name), 'w', encoding='utf-8') as file:
+								file.write(encrypted_data)
+							tkmsg.showinfo("Ótimo!", f"O arquivo foi gravado com sucesso.\nVá até o local selecionado para visualizar o arquivo:\n{os.path.join(selected_local, file_name)}")
+						except Exception as err:
+							message_error = f"Não foi possível gerar o arquivo.\n\nERRO: {err}\n\nTente novamente e, caso esta mensagem seja exibida mais uma vez, entre em contato com o administrador do aplicativo."
+							tkmsg.showerror("Algo deu errado!", message_error)
+						
+						# Teste
+						#with open(os.path.join(os.getcwd(), file_name), 'w', encoding='utf-8') as file:
+						#	json.dump(file_dict, file, ensure_ascii=False, indent=4)
+						
+						self.label_msg.grid_forget()
+					else:
+						self.label_msg.grid_forget()
+						tkmsg.error("Impossível continuar", f"Não foi possível realizar identificação do Sistema Operacional ou realizar a leitura dos componentes de hardware.\nComunique o erro ao responsável pelo levantamento.")
+				else:
+					self.label_msg.grid_forget()
+		else:
+			self.label_msg.grid_forget()
 
 def main(args):
 	app = my_App()
