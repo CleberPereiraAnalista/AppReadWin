@@ -89,6 +89,16 @@ class CreateFile1():
 				'valor':[],
 			}
 
+			# Discos (Particões) chave composta tripla
+			file_dict_6 = {
+				'código da estação':[],
+				'código do disco':[],
+				'código':[],
+				'especificações':[],
+				'definição':[],
+				'valor':[]
+			}
+
 			for i, record in enumerate(self.data_records):
 				code = i+1
 				date_record = record['date'].split('-')
@@ -104,7 +114,13 @@ class CreateFile1():
 				monitores_particular_total = 0
 				mouse_particular_total = 0
 				teclado_particular_total = 0
-				memoria_ram_total = record['computer']['hardwares_info']['physical_memory_total']/(1024**3)
+				if record['computer']['hardwares_info']:
+					if 'physical_memory_total' in record['computer']['hardwares_info'].keys():
+						memoria_ram_total = record['computer']['hardwares_info']['physical_memory_total']/(1024**3)
+					else:
+						memoria_ram_total = 0
+				else:
+					memoria_ram_total = 0
 
 				file_dict_1['código'].append(code)
 				file_dict_1['data'].append(date)
@@ -124,6 +140,14 @@ class CreateFile1():
 				hard_specifications = [] 
 				hard_definition = [] 
 				hard_value = [] 
+
+				## Hardware - Disk - Partitions
+				partition_workstation_record_code = []
+				partition_disk_code = []
+				partition_order = []
+				partition_specifications = []
+				partition_definition = []
+				partition_value = []
 
 				## Apps
 				app_workstation_record_code = []
@@ -147,23 +171,43 @@ class CreateFile1():
 				# iterar em cada nível e obter as informações que compõem as colunas. Alguns serão preenchidos em vazio
 
 				## A. Computador
+				
 				### A.1 - Computer - Hardwares
-				nickname_item_dict = {'processor': 'Processador', 'base_board': 'Placa-mãe', 'physical_memory':'Memória RAM', 'gpu':'Vídeo'}
+				nickname_item_dict = {'processor': 'Processador', 'base_board': 'Placa-mãe', 'physical_memory':'Memória RAM', 'gpu':'Vídeo', 'disk':'Disco'}
 				nickname_specifications_to_definition = {
 					'manufacturer': 'Fabricante',
 					'model': 'Modelo',
 					'version': 'Versão',
 					'serial_number': 'Serial',
+					'part_number_mem': 'Serial',
+					'serial_number_mem': 'Serial (Lote)',
 					'driver': 'Driver',
 					'type': 'Tipo',
 					'type_code': 'Tipo (código)',
 					'capacityGB_text': 'Capacidade (GB)',
 					'capacityMB_text': 'Capacidade (MB)',
 					'speed_text': 'Velocidade',
+					'device': 'Unidade',
+					'disk_brand_model': 'Marca (Modelo)',
+					'disk_manufacturer': 'Fabricante',
+					'disk_serial_number': 'Serial',
+					'file_system': 'Sistema de Arquivos',
+					'disk_total_gb_text': 'Espaço Total (GB)',
+					'total_gb_text': 'Espaço Total (GB)',
+					'used_gb_text': 'Espaço Usado (GB)',
+					'free_gb_text': 'Espaço Livre (GB)',
+					'used_percent_text': 'Espaço %',
+					'free_percent_text': 'Espaço %',
 					}
 				nickname_specifications_to_value = {
 					'physical_cores': 'Núcleos Físicos',
 					'capacity': 'Capacidade',
+					'disk_total_gb': 'Capacidade',
+					'total_gb': 'Capacidade',
+					'used_gb': 'Capacidade',
+					'free_gb': 'Capacidade',
+					'used_percent': 'Percentual',
+					'free_percent': 'Percentual',
 					#'capacityGB': 'Capacidade (GB)',
 					#'capacityMB': 'Capacidade (MB)',
 					#'speed': 'Velocidade',
@@ -172,66 +216,114 @@ class CreateFile1():
 					'speed_text': 'speed',
 					'capacityGB_text': 'capacityGB',
 					'capacityMB_text': 'capacityMB',
+					'disk_total_gb_text': 'disk_total_gb',
+					'total_gb_text': 'total_gb',
+					'used_gb_text': 'used_gb',
+					'free_gb_text': 'free_gb',
+					'used_percent_text': 'used_percent',
+					'free_percent_text': 'free_percent',
 
 				}
-				for hardware, specifications in record['computer']['hardwares_info'].items():
-					if isinstance(specifications, dict):
-						for order_id, specification_dict in specifications.items():
-							for specification, value in specification_dict.items():
+
+				if record['computer']['hardwares_info']:
+					for hardware, specifications in record['computer']['hardwares_info'].items():
+						if isinstance(specifications, dict):
+							for order_id, specification_dict in specifications.items():
+								for specification, value in specification_dict.items():
+									if specification in nickname_specifications_to_definition.keys():
+										if specification in reference_value.keys():
+											hard_workstation_record_code.append(code)
+											hard_order.append(str(order_id))
+											hardwares.append(nickname_item_dict[hardware])
+											hard_specifications.append(nickname_specifications_to_definition[specification])
+											hard_definition.append(value)
+											key = reference_value[specification]
+											val = record['computer']['hardwares_info'][hardware][order_id][key]
+											hard_value.append(val)
+										elif not specification in nickname_specifications_to_value.keys():
+											hard_workstation_record_code.append(code)
+											hard_order.append(str(order_id))
+											hardwares.append(nickname_item_dict[hardware])
+											hard_specifications.append(nickname_specifications_to_definition[specification])
+											hard_definition.append(value)
+											hard_value.append(0)
+									elif specification in nickname_specifications_to_value.keys():
+										if specification in reference_value.keys():
+											hard_workstation_record_code.append(code)
+											hard_order.append(str(order_id))
+											hardwares.append(nickname_item_dict[hardware])
+											hard_specifications.append(nickname_specifications_to_value[specification])
+											hard_definition.append('')
+											hard_value.append(value)
+									#if specification == 'partitions':
+									#	print(f"\n{}\n")
+
+					file_dict_2['código da estação'] += hard_workstation_record_code
+					file_dict_2['código'] += hard_order
+					file_dict_2['hardwares'] += hardwares
+					file_dict_2['especificações'] += hard_specifications
+					file_dict_2['definição'] += hard_definition
+					file_dict_2['valor'] += hard_value
+
+					### A.1 - Computer - Hardwares - Disks - Partitions
+					for disk_code, disk in record['computer']['hardwares_info']['disk'].items():
+						for partition_id, specifications in disk['partitions'].items():
+							for specification, value in specifications.items():
 								if specification in nickname_specifications_to_definition.keys():
 									if specification in reference_value.keys():
-										hard_workstation_record_code.append(code)
-										hard_order.append(str(order_id))
-										hardwares.append(nickname_item_dict[hardware])
-										hard_specifications.append(nickname_specifications_to_definition[specification])
-										hard_definition.append(value)
+										partition_workstation_record_code.append(code)
+										partition_disk_code.append(disk_code)
+										partition_order.append(partition_id)
+										partition_specifications.append(nickname_specifications_to_definition[specification])
+										partition_definition.append(value)
 										key = reference_value[specification]
-										val = record['computer']['hardwares_info'][hardware][order_id][key]
-										hard_value.append(val)
+										val = record['computer']['hardwares_info']['disk'][disk_code]['partitions'][partition_id][key]
+										partition_value.append(val)
 									elif not specification in nickname_specifications_to_value.keys():
-										hard_workstation_record_code.append(code)
-										hard_order.append(str(order_id))
-										hardwares.append(nickname_item_dict[hardware])
-										hard_specifications.append(nickname_specifications_to_definition[specification])
-										hard_definition.append(value)
-										hard_value.append(0)
+										partition_workstation_record_code.append(code)
+										partition_disk_code.append(disk_code)
+										partition_order.append(partition_id)
+										partition_specifications.append(nickname_specifications_to_definition[specification])
+										partition_definition.append(value)
+										partition_value.append(0)
 								elif specification in nickname_specifications_to_value.keys():
 									if specification in reference_value.keys():
-										hard_workstation_record_code.append(code)
-										hard_order.append(str(order_id))
-										hardwares.append(nickname_item_dict[hardware])
-										hard_specifications.append(nickname_specifications_to_value[specification])
-										hard_definition.append('')
-										hard_value.append(value)
-
-				file_dict_2['código da estação'] += hard_workstation_record_code
-				file_dict_2['código'] += hard_order
-				file_dict_2['hardwares'] += hardwares
-				file_dict_2['especificações'] += hard_specifications
-				file_dict_2['definição'] += hard_definition
-				file_dict_2['valor'] += hard_value
-
+										partition_workstation_record_code.append(code)
+										partition_disk_code.append(disk_code)
+										partition_order.append(partition_id)
+										partition_specifications.append(nickname_specifications_to_definition[specification])
+										partition_definition.append('')
+										partition_value.append(value)
+					file_dict_6['código da estação'] += partition_workstation_record_code
+					file_dict_6['código do disco'] += partition_disk_code
+					file_dict_6['código'] += partition_order
+					file_dict_6['especificações'] += partition_specifications
+					file_dict_6['definição'] += partition_definition
+					file_dict_6['valor'] += partition_value
+			
 
 				### A.2 - Computer - Apps
-				for app in record['computer']['installed_apps']:
-					app_workstation_record_code.append(code)
-					apps.append(app)
-				file_dict_3['código da estação'] += app_workstation_record_code
-				file_dict_3['aplicações'] += apps
+				if record['computer']['installed_apps']:
+					for app in record['computer']['installed_apps']:
+						app_workstation_record_code.append(code)
+						apps.append(app)
+					file_dict_3['código da estação'] += app_workstation_record_code
+					file_dict_3['aplicações'] += apps
 
 
 				### A.3 - Computer - Sistema Operacional
-				so_workstation_record_code.append(code)
-				so_name.append(record['computer']['operating_system_info'].get('name'))
-				so_release.append(record['computer']['operating_system_info']['release'])
-				so_version.append(record['computer']['operating_system_info']['version'])
-				so_architecture.append(record['computer']['operating_system_info']['architecture'])
+				if record['computer']['operating_system_info']:
+					so_workstation_record_code.append(code)
+					so_name.append(record['computer']['operating_system_info'].get('name'))
+					so_release.append(record['computer']['operating_system_info']['release'])
+					so_version.append(record['computer']['operating_system_info']['version'])
+					so_architecture.append(record['computer']['operating_system_info']['architecture'])
 
-				file_dict_4['código da estação'] += so_workstation_record_code
-				file_dict_4['nome'] += so_name
-				file_dict_4['lançamento'] += so_release
-				file_dict_4['versão'] += so_version
-				file_dict_4['arquitetura'] += so_architecture
+					file_dict_4['código da estação'] += so_workstation_record_code
+					file_dict_4['nome'] += so_name
+					file_dict_4['lançamento'] += so_release
+					file_dict_4['versão'] += so_version
+					file_dict_4['arquitetura'] += so_architecture
 
 				
 				## B. Periféricos
@@ -296,6 +388,7 @@ class CreateFile1():
 
 			df1 = DataFrame(file_dict_1)
 			df2 = DataFrame(file_dict_2)
+			df6 = DataFrame(file_dict_6)
 			df3 = DataFrame(file_dict_3)
 			df4 = DataFrame(file_dict_4)
 			df5 = DataFrame(file_dict_5)
@@ -305,6 +398,7 @@ class CreateFile1():
 				with ExcelWriter(os.path.join(self.destiny_dir,'info_computadores.xlsx')) as writer:
 					df1.to_excel(writer, sheet_name='EstaçãoDeTrabalho', index=False)
 					df2.to_excel(writer, sheet_name='Hardware', index=False)
+					df6.to_excel(writer, sheet_name='DiscoPartições', index=False)
 					df3.to_excel(writer, sheet_name='Aplicativos', index=False)
 					df4.to_excel(writer, sheet_name='SistemaOperacional', index=False)
 					df5.to_excel(writer, sheet_name='Periféricos', index=False)

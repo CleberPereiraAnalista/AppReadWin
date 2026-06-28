@@ -112,6 +112,14 @@ class my_App:
 		)
 		self.btn_create_file_1.grid(row=final_row_init, columnspan=10, sticky='we', padx=5, pady=10)
 
+		self.label_msg = tk.Label(
+			self.mainframe,
+			text='Atualizando... aguarde pelo término!',
+			font=tk.font.Font(size=9, slant="italic"),
+			fg="red",
+			justify=tk.CENTER,
+			anchor="center",
+		)
 		
 
 		# Container Footer ------------------------------------------------------------------------------
@@ -138,6 +146,13 @@ class my_App:
 
 
 	def export_file_1(self):
+
+		self.label_msg.grid(row=22, column=0, columnspan=4, padx=6, pady=0)
+		self.mainframe.update()
+		self.run_export_file_1()
+
+
+	def run_export_file_1(self):
 		origin_dir = self.input_origin_path.get("1.0","end").strip()
 		destiny_dir = self.input_destiny_path.get("1.0","end").strip()
 
@@ -155,6 +170,11 @@ class my_App:
 				tkmsg.showinfo("Que bom!", message)
 			else:
 				tkmsg.showerror("Ah! Algo deu errado...", message)
+
+			self.label_msg.grid_forget()
+
+		else:
+			self.label_msg.grid_forget()
 
 
 
